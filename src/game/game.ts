@@ -2,6 +2,7 @@ import { GameScore } from "../interfaces";
 import Match from "../match/match";
 import { Queue } from "queue-typescript";
 import Batsman from "../batsman/batsman";
+import { validRuns } from "../constants";
 
 
 export default class Game extends Match {
@@ -62,7 +63,6 @@ export default class Game extends Match {
 
         for (let i = 0; i < overs.length; i++) {
             const over = overs[i];
-            const validRuns = "0123456";
 
             for (let i = 0; i <over.length; i++){
 
