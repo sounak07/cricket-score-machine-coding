@@ -1,0 +1,17 @@
+coverage/
+node_modules/
+src/
+test/
+.env
+.eslintignore
+.eslintrc.json
+.gitignore
+.gitlab-ci.yml
+.npmrc
+docker-compose.test.yml
+jest.config.js
+package.json
+package-lock.json
+README.md
+tsconfig.json
+tsconfig.release.json
