@@ -37,19 +37,18 @@ export default class Game extends Match {
         console.log("\n");
     }
 
-    public MatchInnings(overs: Array<Array<string>>): GameScore {
+    public MatchInnings(overs: Array<Array<string>>, battingOrder:Array<string>): GameScore {
 
         const battingQueue = new Queue<Batsman>();
         const scoreCard: Batsman[] = [];
         let score = 0;
         let wickets = 0;
-
         const numberOfPlayers = super.getPlayers();
 
-        for(let i = 0;i < numberOfPlayers; i++){
+        for (let i = 0; i < numberOfPlayers; i++) {
 
-            const p = new Batsman(i, `P${i+1}`, 0, 0, 0, 0 ,false);
-            scoreCard.push(p);
+            const p = new Batsman(i, battingOrder[i], 0, 0, 0, 0, false);
+            scoreCard.push(p); 
             battingQueue.enqueue(p);
         }
 
