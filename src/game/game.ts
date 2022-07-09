@@ -7,10 +7,20 @@ import { validRuns } from "../constants";
 
 export default class Game extends Match {
     private team: string;
+    private extras: number;
 
-    constructor(players: number, overs: number, meta: object, teamName: string){
+    constructor(players: number, overs: number, meta: object, teamName: string, extras: number){
         super(players, overs, meta);
         this.team = teamName;
+        this.extras = extras;
+    }
+
+    public getExtras(): number {
+        return this.extras;
+    }
+
+    public setExtras(): void {
+        this.extras++;
     }
 
     public getTeamName(): string {
@@ -33,7 +43,8 @@ export default class Game extends Match {
         }
 
         console.log(`Total: ${score}/${wickets}`);
-        console.log(`Overs: ${Math.floor(totalBalls/6)}.${totalBalls%6}`);
+        console.log(`Overs: ${Math.floor(totalBalls / 6)}.${totalBalls % 6}`);
+        console.log(`Extras: ${this.getExtras()}`);
         console.log("\n");
     }
 
@@ -64,7 +75,6 @@ export default class Game extends Match {
             const over = overs[i];
 
             for (let i = 0; i <over.length; i++){
-
 
                 if(validRuns.includes(over[i])){
 
@@ -118,6 +128,17 @@ export default class Game extends Match {
 
                 } else if(over[i] === "Wd"){
                     score++;
+                    this.setExtras();
+                } else if (over[i] === "NO") {
+
+                    if (p1.isOnStrike()) {
+                        p1.setBallPlayed();
+                    } else if (p2.isOnStrike()) {
+                        p2.setBallPlayed();
+                    }
+
+                    score++;
+                    this.setExtras();
                 }
 
                 scoreCard[p1.getPlayerId()] = p1;
