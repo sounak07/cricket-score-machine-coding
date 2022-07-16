@@ -3,6 +3,8 @@ import Match from "../match/match";
 import { Queue } from "queue-typescript";
 import Batsman from "../batsman/batsman";
 import { validRuns } from "../constants";
+import Ball from "../ball/ball";
+import Bowler from "../bowler/bowler";
 
 
 export default class Game extends Match {
@@ -48,21 +50,31 @@ export default class Game extends Match {
         console.log("\n");
     }
 
-    public MatchInnings(overs: Array<Array<string>>, battingOrder:Array<string>): GameScore {
+    public MatchInnings(overs: Array<Array<string>>, battingOrder: Array<string>, bowlingingOrder: Array<string>): GameScore {
 
         const battingQueue = new Queue<Batsman>();
-        const scoreCard: Batsman[] = [];
+        const bowlersQueue = new Queue<Bowler>();
+        const scoreCard: Array<Batsman> = [];
+        const scoreCardBowlers: Array<Bowler> = [];
         let score = 0;
         let wickets = 0;
         const numberOfPlayers = super.getPlayers();
 
         for (let i = 0; i < numberOfPlayers; i++) {
 
-            const p = new Batsman(i, battingOrder[i], 0, 0, 0, 0, false);
+            const p = new Batsman(i, battingOrder[i], 0, 0, [], false);
             scoreCard.push(p); 
             battingQueue.enqueue(p);
         }
 
+        for (let i = 0; i < numberOfPlayers; i++) {
+
+            const bowler = new Bowler(i, bowlingingOrder[i], 0, 0, [], false);
+            scoreCardBowlers.push(bowler);
+            bowlersQueue.enqueue(bowler);
+        }
+
+        //batsman
         let p1: Batsman = battingQueue.front;
         battingQueue.dequeue();
         p1.setPlaying(true);
@@ -70,6 +82,12 @@ export default class Game extends Match {
         let p2: Batsman = battingQueue.front;
         p2.setPlaying(true);
         battingQueue.dequeue();
+
+        //bowler
+        let b1: Bowler = bowlersQueue.front;
+        bowlersQueue.dequeue();
+        b1.setPlaying(true);
+        b1.setBowling();
 
         for (let i = 0; i < overs.length; i++) {
             const over = overs[i];
@@ -81,11 +99,9 @@ export default class Game extends Match {
                     const runs = parseInt(over[i]);
 
                     if (p1.isOnStrike()) {
-                        p1.setRuns(runs);
-                        p1.setBallPlayed();
+                        p1.setBallPlayed(p1, b1, runs, false);
                     } else if (p2.isOnStrike()) {
-                        p2.setRuns(runs);
-                        p2.setBallPlayed();
+                        p2.setBallPlayed(p1, b1, runs, false);
                     }
                     score += runs;
 
@@ -94,11 +110,13 @@ export default class Game extends Match {
                         p2.setStrike();
                     }
 
+                    b1.setBallPlayed(p1, b1, runs, false);
+
                 }else if(over[i] === "W"){
 
                     const strike: Batsman = p1.isOnStrike() ? p1 : p2;
                     wickets += 1;
-                    strike.setBallPlayed();
+                    strike.setBallPlayed(strike, b1, 0, true);
                     strike.setPlaying(false);
                     scoreCard[strike.getPlayerId()] = strike;
                     if(battingQueue.length < 1){
@@ -107,6 +125,7 @@ export default class Game extends Match {
                         : scoreCard[p1.getPlayerId()] = p1;
 
                         this.printScoreCard(scoreCard, score, wickets);
+                        b1.setBallPlayed(p1, b1, 0, false);
 
                         return {
                             score: score,
@@ -128,14 +147,17 @@ export default class Game extends Match {
 
                 } else if(over[i] === "Wd"){
                     score++;
+                    b1.setBallPlayed(p1, b1, 1, false);
                     this.setExtras();
                 } else if (over[i] === "NO") {
 
                     if (p1.isOnStrike()) {
-                        p1.setBallPlayed();
+                        p1.setBallPlayed(p1,b1,1,false);
                     } else if (p2.isOnStrike()) {
-                        p2.setBallPlayed();
+                        p2.setBallPlayed(p1, b1, 1, false);
                     }
+
+                    b1.setBallPlayed(p1, b1, 1, false);
 
                     score++;
                     this.setExtras();
@@ -145,9 +167,26 @@ export default class Game extends Match {
                 scoreCard[p2.getPlayerId()] = p2;
             }
 
-            this.printScoreCard(scoreCard, score, wickets);
-            p1.setStrike();
-            p2.setStrike();
+            if (bowlersQueue.length < 1) {
+
+                this.printScoreCard(scoreCard, score, wickets);
+
+                return {
+                    score: score,
+                    wickets: wickets
+                };
+            }else {
+                this.printScoreCard(scoreCard, score, wickets);
+                b1.setBowling();
+                b1 = bowlersQueue.front;
+
+                p1.setStrike();
+                p2.setStrike();
+            }
+
+           
+
+
         }
 
         return {

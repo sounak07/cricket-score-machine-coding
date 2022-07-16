@@ -1,13 +1,13 @@
 import Ball from "../ball/ball";
 import Player from "../player/player";
 
-export default class Batsman extends Player {
-    private onStrike: boolean;
+export default class Bowler extends Player {
+    private bowling: boolean;
     private Balls: Array<Ball> = [];
 
-    constructor(id: number, name: string, sixes: number, fours: number, ballPlayed: Array<Ball> ,onStrike: boolean) {
+    constructor(id: number, name: string, sixes: number, fours: number, ballPlayed: Array<Ball>, bowling: boolean) {
         super(id, name, fours, sixes);
-        this.onStrike = onStrike;
+        this.bowling = bowling;
         this.Balls = ballPlayed;
     }
 
@@ -15,15 +15,15 @@ export default class Batsman extends Player {
     //     return this.runs;
     // }
 
-    public isOnStrike(): boolean {
-        return this.onStrike;
+    public isBowling(): boolean {
+        return this.bowling;
     }
 
-    public setStrike(): void {
-        this.onStrike = !this.onStrike;
+    public setBowling(): void {
+        this.bowling = !this.bowling;
     }
 
-    // public setRuns(runs: number){
+    // public setRuns(runs: number) {
     //     this.runs += runs;
 
     //     if (runs === 4) super.setFours();
